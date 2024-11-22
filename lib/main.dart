@@ -2,12 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-void main() async {
-  var response = await http.get(
-    Uri.parse('https://jsonplaceholder.typicode.com/albums/1'),
-  );
-  print(response.body);
-
+void main() {
   runApp(const MyApp());
 }
 
@@ -71,11 +66,6 @@ class _MyHomePageState extends State<MyHomePage> {
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
     final theme = Theme.of(context);
-    // ↓ Add this.
-    final style = theme.textTheme.displayMedium!.copyWith(
-      color: Colors.red,
-      fontSize: 40,
-    );
 
     return Scaffold(
       appBar: AppBar(
@@ -86,7 +76,7 @@ class _MyHomePageState extends State<MyHomePage> {
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
         title: Row(
-          children: [Icon(Icons.photo_album), Text(widget.title)],
+          children: [const Icon(Icons.photo_album), Text(widget.title)],
         ),
       ),
       body: Center(
@@ -126,7 +116,25 @@ class _MyHomePageState extends State<MyHomePage> {
                     itemBuilder: (context, index) {
                       final article = articles[index];
                       return ListTile(
-                        title: Text(article['title'] ?? '无标题'),
+                        leading: IconButton(
+                          icon: Icon(article['isFavorite'] ?? false ? Icons.favorite : Icons.favorite_border),
+                          onPressed: () {
+                            setState(() {
+                              // 切换收藏状态
+                              article['isFavorite'] = !(article['isFavorite'] ?? false);
+                            });
+                          },
+                        ),
+                        title: InkWell(
+                          onTap: () {
+                            // 点击标题跳转到详情页面
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => ArticleDetailPage(article: article)),
+                            );
+                          },
+                          child: Text(article['title'] ?? '无标题'),
+                        ),
                         subtitle: Text(article['publishedAt'] ?? ''),
                       );
                     },
@@ -150,6 +158,46 @@ class _MyHomePageState extends State<MyHomePage> {
                   label: '我的',
                 ),
               ],
+            ),
+          ],
+        ),
+      )
+    );
+  }
+}
+
+class ArticleDetailPage extends StatelessWidget {
+  const ArticleDetailPage({super.key, required this.article});
+  
+  final Map<String, dynamic> article;
+
+  @override
+  Widget build(BuildContext context) {
+    final notes = jsonDecode(article['extra'])['steps'] ?? [];
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(article['title'] ?? '无标题'),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Text(article['title'] ?? '无标题', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
+            ),
+            SizedBox(
+              height: 400,
+              child: ListView.builder(
+                itemCount: notes.length,
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    title: Text(notes[index]['text'] ?? ''),
+                    subtitle: Text(notes[index]['tip'] ?? '', style: TextStyle(fontSize: 12, color: Colors.grey),),
+                  );
+                },
+              ),
             ),
           ],
         ),
