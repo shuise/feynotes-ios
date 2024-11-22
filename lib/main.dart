@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:url_launcher/url_launcher.dart';
 
 void main() {
   runApp(const MyApp());
@@ -183,18 +184,21 @@ class ArticleDetailPage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: Text(article['title'] ?? '无标题', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
+            InkWell(
+              child: Text(article['title'] ?? '无标题', style: const TextStyle(fontSize: 20),),
+            ),
+            InkWell(
+              onTap: () =>  _launchUrl(article['originUrl']),
+              child: Text(article['originUrl'] ?? '无标题', style: const TextStyle(fontSize: 12, color: Colors.blue),),
             ),
             SizedBox(
-              height: 400,
+              height: 500,
               child: ListView.builder(
                 itemCount: notes.length,
                 itemBuilder: (context, index) {
                   return ListTile(
-                    title: Text(notes[index]['text'] ?? ''),
-                    subtitle: Text(notes[index]['tip'] ?? '', style: TextStyle(fontSize: 12, color: Colors.grey),),
+                    title: Text(notes[index]['text'].toString() ?? ''),
+                    subtitle: Text(notes[index]['tips'].toString() ?? ''),
                   );
                 },
               ),
@@ -204,4 +208,11 @@ class ArticleDetailPage extends StatelessWidget {
       )
     );
   }
+
+  Future<void> _launchUrl(url) async {
+  final Uri _url = Uri.parse(url);
+  if (!await launchUrl(_url)) {
+    throw Exception('Could not launch $_url');
+  }
+}
 }
