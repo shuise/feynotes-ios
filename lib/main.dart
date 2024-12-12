@@ -184,12 +184,30 @@ class ArticleDetailPage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
-            InkWell(
-              child: Text(article['title'] ?? '无标题', style: const TextStyle(fontSize: 20),),
+            Padding(
+              padding: const EdgeInsets.all(9.0),
+              child: InkWell(
+                child: Text(article['title'] ?? '', style: const TextStyle(fontSize: 20),),
+              ),
             ),
-            InkWell(
-              onTap: () =>  _launchUrl(article['originUrl']),
-              child: Text(article['originUrl'] ?? '无标题', style: const TextStyle(fontSize: 12, color: Colors.blue),),
+            Padding(
+              padding: const EdgeInsets.all(9.0),
+              child: InkWell(
+                onTap: () => _launchUrl(article['originUrl']),
+                mouseCursor: SystemMouseCursors.click,
+                child: Text(
+                  article['originUrl'] ?? '', 
+                  style: const TextStyle(fontSize: 12, color: Colors.blue),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(9.0),
+              child: Text(
+                article['publishedAt'] ?? '', 
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 12, height: 3),
+              ),
             ),
             SizedBox(
               height: 500,
@@ -198,21 +216,28 @@ class ArticleDetailPage extends StatelessWidget {
                 itemBuilder: (context, index) {
                   return ListTile(
                     title: Text(notes[index]['text'].toString() ?? ''),
-                    subtitle: Text(notes[index]['tips'].toString() ?? ''),
+                    subtitle: Container(
+                      padding: const EdgeInsets.all(8.0),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey),
+                        borderRadius: BorderRadius.circular(4.0),
+                      ),
+                      child: Text(notes[index]['tip'].toString() ?? ''),
+                    ),
                   );
                 },
               ),
             ),
           ],
         ),
-      )
+      ),
     );
   }
 
   Future<void> _launchUrl(url) async {
-  final Uri _url = Uri.parse(url);
-  if (!await launchUrl(_url)) {
-    throw Exception('Could not launch $_url');
+    final Uri _url = Uri.parse(url);
+    if (!await launchUrl(_url)) {
+      throw Exception('Could not launch $_url');
+    }
   }
-}
 }
